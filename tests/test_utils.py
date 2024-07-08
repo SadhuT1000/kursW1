@@ -1,6 +1,10 @@
-import pytest
-from src.utils import greetings, reading_excel, card_info, top_five_transactions
+import os
 from unittest.mock import patch
+
+
+import pytest
+
+from src.utils import card_info, currency_rates, greetings, json_loader, reading_excel, top_five_transactions
 
 
 @pytest.mark.parametrize(
@@ -97,19 +101,55 @@ def test_card_info(transactions, expected):
                 {"Сумма операции": 4},
                 {"Сумма операции": 31},
                 {"Сумма операции": 11},
-                {"Сумма операции": 17},
-                {"Сумма операции": 100},
+                {"Сумма операции": -17},
+                {"Сумма операции": -100},
                 {"Сумма операции": 5},
             ],
             [
                 {"Сумма операции": 9},
                 {"Сумма операции": 11},
-                {"Сумма операции": 17},
+                {"Сумма операции": -17},
                 {"Сумма операции": 31},
-                {"Сумма операции": 100},
+                {"Сумма операции": -100},
             ],
         )
     ],
 )
 def test_top_five_transactions(transactions, expected):
     assert top_five_transactions(transactions) == expected
+
+
+users_settings = {"user_currencies": "USD"}
+
+request_to_return = {"query": {"amount": 1, "from": "USD", "to": "RUB"}, "result": 90.00, "success": True}
+
+
+@patch("json.load")
+def test_json_loader(mock_json_load):
+    mock_json_load.return_value = {"user_currencies": ["USD"], "user_stocks": ["AAPL"]}
+    assert json_loader() == (["USD"], ["AAPL"])
+
+
+def test_json_loader_with_wrong_file_name():
+    with pytest.raises(ValueError) as exc_info:
+        json_loader("abcd.json")
+        assert str(exc_info.value) == "Возникла ошибка при обработке файла пользовательских настроек!"
+
+
+@patch("requests.get")
+@patch.dict(os.environ, {"API_KEY": "my_api_key"})
+def test_currency_rates(mock_request):
+    mock_request.return_value.json.return_value = request_to_return
+    assert currency_rates(["USD"]) == [{"USD": 90.00}]
+    mock_request.assert_called_once_with(
+        "https://api.apilayer.com/exchangerates_data/convert?to=RUB&from=USD&amount=1",
+        headers={"apikey": "my_api_key"},
+        timeout=5,
+        allow_redirects=False,
+    )
+
+
+def test_currency_rates_with_wrong_data():
+    with pytest.raises(Exception) as exc_info:
+        currency_rates("ABC")
+        assert str(exc_info.value) == "При работе функции произошла ошибка!"

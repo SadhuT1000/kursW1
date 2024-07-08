@@ -1,11 +1,14 @@
 import datetime
+import json
 import os
 from collections import defaultdict
-from typing import Dict, List
+from typing import Any, Dict, List, Tuple
 
 import pandas as pd
+import requests
+from dotenv import load_dotenv
 
-from config import DATA_DIR
+from config import DATA_DIR, ROOT_DIR
 
 
 def greetings(date_string: str) -> str:
@@ -68,8 +71,39 @@ def card_info(transactions: List[Dict]) -> List[Dict]:
 def top_five_transactions(transactions: List[Dict]) -> List[Dict]:
     """Функция принимает список транзакций(словарей).
     Возвращает список словарей с топ-пятью транзакциями по сумме операции."""
-    sorted_transactions_list = sorted(transactions, key=lambda x: x["Сумма операции"])
+    sorted_transactions_list = sorted(transactions, key=lambda x: abs(x["Сумма операции"]))
     return sorted_transactions_list[-5:]
+
+
+def json_loader(file_name: str = "user_settings.json") -> Tuple[Any, Any]:
+    """Функция может принимать название json-файла пользовательских настроек
+    (по-умолчанию задано 'user_settings.json'), который расположен в корне проекта.
+    Обрабатывает json-файл пользовательских настроек.
+    Возвращает кортеж списков валют и акций."""
+    file_with_dir = os.path.join(ROOT_DIR, file_name)
+    try:
+        with open(file_with_dir, "r", encoding="utf-8") as file_in:
+            data = json.load(file_in)
+            return data["user_currencies"], data["user_stocks"]
+    except Exception:
+        raise ValueError("Возникла ошибка при обработке файла пользовательских настроек!")
+
+
+def currency_rates(users_currencies: List) -> List[Dict[str, Any]]:
+    """Функция принимает список валют. Возвращает курс валют, полученный через API."""
+    try:
+        result_currency_list = []
+        load_dotenv()
+        api_key = os.getenv("API_KEY")
+        for currency in users_currencies:
+            url = f"https://api.apilayer.com/exchangerates_data/convert?to={"RUB"}&from={currency}&amount={1}"
+            headers = {"apikey": api_key}
+            response = requests.get(url, headers=headers, timeout=5, allow_redirects=False)
+            result = response.json()
+            result_currency_list.append({currency: round(float(result["result"]), 2)})
+        return result_currency_list
+    except Exception:
+        raise Exception("При работе функции произошла ошибка!")
 
 
 if __name__ == "__main__":
@@ -123,8 +157,13 @@ if __name__ == "__main__":
         {"Сумма операции": 4},
         {"Сумма операции": 31},
         {"Сумма операции": 11},
-        {"Сумма операции": 17},
-        {"Сумма операции": 100},
+        {"Сумма операции": -17},
+        {"Сумма операции": -100},
         {"Сумма операции": 5},
     ]
     print(top_five_transactions(data_for_five))
+    # print(currency_rates())
+    # print(currency_rates_default())
+    print(json_loader())
+    # users_currs = json_loader()[0]
+    # print(currency_rates(users_currs))

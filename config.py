@@ -15,5 +15,5 @@ if not os.path.exists(LOGS_DIR):
     os.makedirs(LOGS_DIR)
 
 UTILS_LOGS = os.path.join(LOGS_DIR, "utils.log")
-MASKS_LOGS = os.path.join(LOGS_DIR, "masks.log")
-CSV_EXCEL_LOGS = os.path.join(LOGS_DIR, "csv_excel.log")
+SERVICES_LOGS = os.path.join(LOGS_DIR, "services.log")
+
