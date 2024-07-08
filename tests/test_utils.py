@@ -1,7 +1,6 @@
 import os
 from unittest.mock import patch
 
-
 import pytest
 
 from src.utils import card_info, currency_rates, greetings, json_loader, reading_excel, top_five_transactions

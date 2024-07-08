@@ -1,5 +1,6 @@
 import pytest
-from src.services import limit_payment, date_sorting, investment_bank
+
+from src.services import date_sorting, investment_bank, limit_payment
 
 
 @pytest.mark.parametrize("limit, summa, expected", [(100, -97, -100), (50, 173.4, 200), (10, 236.75, 240)])
