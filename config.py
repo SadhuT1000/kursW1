@@ -16,4 +16,5 @@ if not os.path.exists(LOGS_DIR):
 
 UTILS_LOGS = os.path.join(LOGS_DIR, "utils.log")
 SERVICES_LOGS = os.path.join(LOGS_DIR, "services.log")
+REPORTS_LOGS = os.path.join(LOGS_DIR, "reports.log")
 

@@ -3,7 +3,15 @@ from unittest.mock import patch
 
 import pytest
 
-from src.utils import card_info, currency_rates, greetings, json_loader, reading_excel, top_five_transactions
+from src.utils import (
+    card_info,
+    currency_rates,
+    greetings,
+    json_loader,
+    reading_excel,
+    top_five_transactions,
+    stock_rates,
+)
 
 
 @pytest.mark.parametrize(
@@ -120,8 +128,6 @@ def test_top_five_transactions(transactions, expected):
 
 users_settings = {"user_currencies": "USD"}
 
-request_to_return = {"query": {"amount": 1, "from": "USD", "to": "RUB"}, "result": 90.00, "success": True}
-
 
 @patch("json.load")
 def test_json_loader(mock_json_load):
@@ -135,10 +141,13 @@ def test_json_loader_with_wrong_file_name():
         assert str(exc_info.value) == "Возникла ошибка при обработке файла пользовательских настроек!"
 
 
+request_to_return_currency = {"query": {"amount": 1, "from": "USD", "to": "RUB"}, "result": 90.00, "success": True}
+
+
 @patch("requests.get")
-@patch.dict(os.environ, {"API_KEY": "my_api_key"})
+@patch.dict(os.environ, {"API_KEY_CURRENCY": "my_api_key"})
 def test_currency_rates(mock_request):
-    mock_request.return_value.json.return_value = request_to_return
+    mock_request.return_value.json.return_value = request_to_return_currency
     assert currency_rates(["USD"]) == [{"USD": 90.00}]
     mock_request.assert_called_once_with(
         "https://api.apilayer.com/exchangerates_data/convert?to=RUB&from=USD&amount=1",
@@ -151,4 +160,25 @@ def test_currency_rates(mock_request):
 def test_currency_rates_with_wrong_data():
     with pytest.raises(Exception) as exc_info:
         currency_rates("ABC")
+        assert str(exc_info.value) == "При работе функции произошла ошибка!"
+
+
+request_to_return_stock = {"Global Quote": {"01. symbol": "IBM", "05. price": 10.00}}
+
+
+@patch("requests.get")
+@patch.dict(os.environ, {"API_KEY_STOCK": "my_api_key"})
+def test_stock_rates(mock_request):
+    mock_request.return_value.json.return_value = request_to_return_stock
+    assert stock_rates(["IBM"]) == [{"IBM": 10.00}]
+    mock_request.assert_called_once_with(
+        "https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=IBM&apikey=my_api_key",
+        timeout=5,
+        allow_redirects=False,
+    )
+
+
+def test_stock_rates_with_wrong_data():
+    with pytest.raises(Exception) as exc_info:
+        stock_rates("ABC")
         assert str(exc_info.value) == "При работе функции произошла ошибка!"

@@ -120,13 +120,14 @@ def currency_rates(users_currencies: List) -> List[Dict[str, Any]]:
     try:
         result_currency_list = []
         load_dotenv()
-        api_key = os.getenv("API_KEY")
+        api_key = os.getenv("API_KEY_CURRENCY")
         logger.info("Функция получает данные курсов валют.")
         for currency in users_currencies:
             url = f"https://api.apilayer.com/exchangerates_data/convert?to={"RUB"}&from={currency}&amount={1}"
             headers = {"apikey": api_key}
             response = requests.get(url, headers=headers, timeout=5, allow_redirects=False)
             result = response.json()
+            logger.info(f"{result}")
             result_currency_list.append({currency: round(float(result["result"]), 2)})
         logger.info("Функция успешно завершила свою работу.")
         return result_currency_list
@@ -135,7 +136,29 @@ def currency_rates(users_currencies: List) -> List[Dict[str, Any]]:
         raise Exception("При работе функции произошла ошибка!")
 
 
+def stock_rates(users_stocks: List) -> List[Dict[str, Any]]:
+    """Функция принимает список акций. Возвращает котировки, полученные через API."""
+    logger.info("Функция начала свою работу.")
+    try:
+        result_stocks_list = []
+        load_dotenv()
+        api_key = os.getenv("API_KEY_STOCK")
+        logger.info("Функция получает данные по котировкам.")
+        for stock in users_stocks:
+            url = f"https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol={stock}&apikey={api_key}"
+            response = requests.get(url, timeout=5, allow_redirects=False)
+            result = response.json()
+            logger.info(f"{result}")
+            result_stocks_list.append({stock: round(float(result["Global Quote"]["05. price"]), 2)})
+        logger.info("Функция успешно завершила свою работу.")
+        return result_stocks_list
+    except Exception:
+        logger.error("При работе функции произошла ошибка!")
+        raise Exception("При работе функции произошла ошибка!")
+
+
 if __name__ == "__main__":
+    # print(stock_rates(['AAPL', 'AMZN', 'GOOGL']))
     print(greetings("2024-07-06 10:42:30"))
     data = reading_excel("operations.xls")
     print(card_info(data))
@@ -193,4 +216,4 @@ if __name__ == "__main__":
     print(top_five_transactions(data_for_five))
     print(json_loader())
     users_currs = json_loader()[0]
-    print(currency_rates(users_currs))
+    print(currency_rates(["USD"]))
