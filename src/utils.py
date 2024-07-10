@@ -128,7 +128,7 @@ def currency_rates(users_currencies: List) -> List[Dict[str, Any]]:
             response = requests.get(url, headers=headers, timeout=5, allow_redirects=False)
             result = response.json()
             logger.info(f"{result}")
-            result_currency_list.append({currency: round(float(result["result"]), 2)})
+            result_currency_list.append({"currency": currency, "rate": round(float(result["result"]), 2)})
         logger.info("Функция успешно завершила свою работу.")
         return result_currency_list
     except Exception:
@@ -149,7 +149,7 @@ def stock_rates(users_stocks: List) -> List[Dict[str, Any]]:
             response = requests.get(url, timeout=5, allow_redirects=False)
             result = response.json()
             logger.info(f"{result}")
-            result_stocks_list.append({stock: round(float(result["Global Quote"]["05. price"]), 2)})
+            result_stocks_list.append({"stock": stock, "price": round(float(result["Global Quote"]["05. price"]), 2)})
         logger.info("Функция успешно завершила свою работу.")
         return result_stocks_list
     except Exception:
