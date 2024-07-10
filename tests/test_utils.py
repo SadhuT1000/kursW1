@@ -148,7 +148,7 @@ request_to_return_currency = {"query": {"amount": 1, "from": "USD", "to": "RUB"}
 @patch.dict(os.environ, {"API_KEY_CURRENCY": "my_api_key"})
 def test_currency_rates(mock_request):
     mock_request.return_value.json.return_value = request_to_return_currency
-    assert currency_rates(["USD"]) == [{"USD": 90.00}]
+    assert currency_rates(["USD"]) == [{"currency": "USD", "rate": 90.0}]
     mock_request.assert_called_once_with(
         "https://api.apilayer.com/exchangerates_data/convert?to=RUB&from=USD&amount=1",
         headers={"apikey": "my_api_key"},
@@ -170,7 +170,7 @@ request_to_return_stock = {"Global Quote": {"01. symbol": "IBM", "05. price": 10
 @patch.dict(os.environ, {"API_KEY_STOCK": "my_api_key"})
 def test_stock_rates(mock_request):
     mock_request.return_value.json.return_value = request_to_return_stock
-    assert stock_rates(["IBM"]) == [{"IBM": 10.00}]
+    assert stock_rates(["IBM"]) == [{"price": 10.0, "stock": "IBM"}]
     mock_request.assert_called_once_with(
         "https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=IBM&apikey=my_api_key",
         timeout=5,
