@@ -14,6 +14,15 @@ from src.utils import (
 )
 
 
+@pytest.fixture
+def greeting_fix():
+    return "2025-12-06 19:42:30"
+
+
+def test_greetings_with_fixture(greeting_fix):
+    assert greetings(greeting_fix) == "Добрый вечер!"
+
+
 @pytest.mark.parametrize(
     "date, expected", [("2024-07-06 14:42:30", "Добрый день!"), ("2044-12-06 04:42:30", "Доброй ночи!")]
 )

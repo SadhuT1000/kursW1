@@ -35,3 +35,9 @@ def test_views(
     mock_views_currency_rates.return_value = {"USD": 90}
     mock_views_stock_rates.return_value = {"APPL": 1500}
     assert views("2024-07-06 10:42:30") == expected_json
+
+
+def test_views_with_wrong_date():
+    with pytest.raises(Exception) as exc_info:
+        views("ABC")
+        assert str(exc_info.value) == "При работе функции произошла ошибка!"
