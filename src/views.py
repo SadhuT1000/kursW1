@@ -20,19 +20,19 @@ file_handler.setFormatter(file_formatter)
 logger.addHandler(file_handler)
 
 
-def views(date: str) -> str:
-    """Функция принимает дату (строка). Возвращает ответ с приветствием,
-    информацией по картам, топ-5 транзакций стоимость валюты и акций в виде json-строки."""
+def views(date: str, transactions_df) -> str:
+    """Функция принимает дату (строка) и DataFrame с данными по транзакциям.
+    Возвращает ответ с приветствием, информацией по картам,
+    топ-5 транзакций стоимость валюты и акций в виде json-строки."""
     try:
         logger.info("Функция начала свою работу.")
+        transactions = transactions_df.to_dict(orient="records")
         logger.info("Функция собирает результаты работ своих подфункций.")
         greeting = greetings(date)
         logger.info("Функция приветствия завершила свою работу.")
-        transaction_info = reading_excel("operations.xls")
-        logger.info("Функция чтения данных из файла завершила свою работу.")
-        info_about_cards = card_info(transaction_info)
+        info_about_cards = card_info(transactions)
         logger.info("Функция по сбору информации по картам завершила свою работу.")
-        five_transactions = top_five_transactions((transaction_info))
+        five_transactions = top_five_transactions((transactions))
         logger.info("Функция топ-5 транзакций завершила свою работу.")
         users_settings = json_loader()
         currensy = currency_rates(users_settings[0])
@@ -56,4 +56,5 @@ def views(date: str) -> str:
 
 
 if __name__ == "__main__":
-    print(views("2024-07-06 10:42:30"))
+    transaction_info = reading_excel("operations.xls")
+    print(views("2024-07-06 10:42:30", transaction_info))

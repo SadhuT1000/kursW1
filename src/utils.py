@@ -47,16 +47,16 @@ def greetings(date_string: str) -> str:
 
 
 def reading_excel(file_name: str) -> List[Dict]:
-    """Функция принимает время в строке название файла excel,
-    возвращает список транзакций(словарей) пригодный для дальнейшей обработки."""
+    """Функция название файла excel, возвращает DataFrame."""
     logger.info("Функция начала свою работу.")
     if file_name.endswith("xls") or file_name.endswith("xlsx"):
         logger.info("Функция начала обработку введённого файла.")
         file_with_dir = os.path.join(DATA_DIR, file_name)
         transactions_df = pd.read_excel(file_with_dir)
-        result = transactions_df.to_dict(orient="records")
+        # result = transactions_df.to_dict(orient="records")
         logger.info("Функция успешно завершила свою работу.")
-        return result
+        # return result
+        return transactions_df
     else:
         logger.error("Неподдерживаемый формат файла!")
         raise ValueError("Неподдерживаемый формат файла!")

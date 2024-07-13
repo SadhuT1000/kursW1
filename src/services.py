@@ -2,6 +2,8 @@ import datetime
 import logging
 from math import ceil, floor
 from typing import Any, Dict, List, Union
+import json
+
 
 from config import SERVICES_LOGS
 from src.utils import reading_excel
@@ -26,7 +28,7 @@ def limit_payment(limit: int, payment: Union[int, float]) -> int:
     return payment_with_limit
 
 
-def date_sorting(month: str, transactions: List[Dict]) -> List[Dict]:
+def date_sorting(month: str, transactions: List[Dict[str, Any]]) -> List[Dict]:
     """Функция принимает месяц сортировки (строка) и список транзакций (словарей),
     возвращает отсортированный по переданному месяцу список транзакций (словарей)."""
     logger.info("Функция начала свою работу.")
@@ -57,9 +59,11 @@ def investment_bank(month: str, transactions: List[Dict[str, Any]], limit: int) 
         rounded_payment = limit_payment(limit, transaction["Сумма операции"])
         investment_result += abs(rounded_payment) - abs(transaction["Сумма операции"])
     logger.info("Функция успешно завершила свою работу.")
-    return round(float(investment_result), 2)
+    result = round(float(investment_result), 2)
+    result_json = json.dumps(result, ensure_ascii=False)
+    return result_json
 
 
 if __name__ == "__main__":
     data_from_excel = reading_excel("operations.xls")
-    print(investment_bank("2022-10", data_from_excel, 100))
+    print(investment_bank("2021-10", data_from_excel.to_dict(orient="records"), 100))

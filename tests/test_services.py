@@ -1,4 +1,5 @@
 import pytest
+import json
 
 from src.services import date_sorting, investment_bank, limit_payment
 
@@ -60,4 +61,6 @@ data_for_test_1 = [
     ],
 )
 def test_investment_bank(month, transaction, limit, expected):
-    assert investment_bank(month, transaction, limit) == expected
+    result = investment_bank(month, transaction, limit)
+    result_to_assert = json.loads(result)
+    assert result_to_assert == expected
