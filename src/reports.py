@@ -59,6 +59,7 @@ def filtered_by_date(transactions: List[Dict], date: str = "") -> List[Dict[str,
     Возвращает список транзакций (словарей), отобранных за период в 3 месяца от заданной даты,
     если дата не передана, то от настоящего числа."""
     logger.info("Функция начала свою работу.")
+    time = datetime.time(hour=23, minute=59, second=59)
     if not date:
         end_date = datetime.datetime.today()
         start_date = end_date - datetime.timedelta(weeks=12)
@@ -69,7 +70,11 @@ def filtered_by_date(transactions: List[Dict], date: str = "") -> List[Dict[str,
     logger.info("Функция обрабатывает полученные данные.")
     for transaction in transactions:
         transaction_date = datetime.datetime.strptime(transaction["Дата операции"], "%d.%m.%Y %H:%M:%S")
-        if start_date <= transaction_date <= end_date:
+        if (
+            datetime.datetime.combine(start_date, time)
+            <= transaction_date
+            <= datetime.datetime.combine(end_date, time)
+        ):
             filtered_list.append(transaction)
     logger.info("Функция успешно завершила свою работу.")
     return filtered_list
@@ -111,4 +116,4 @@ data_from_excel = pd.DataFrame(
 
 
 if __name__ == "__main__":
-    print(spent_by_category(data_from_excel, "Фастфуд", "2023-10-30"))
+    print(spent_by_category(data_from_excel, "Фастфуд", "2023-10-15"))
