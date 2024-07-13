@@ -59,7 +59,8 @@ def filtered_by_date(transactions: List[Dict], date: str = "") -> List[Dict[str,
     Возвращает список транзакций (словарей), отобранных за период в 3 месяца от заданной даты,
     если дата не передана, то от настоящего числа."""
     logger.info("Функция начала свою работу.")
-    time = datetime.time(hour=23, minute=59, second=59)
+    time_start = datetime.time(hour=00, minute=00, second=00)
+    time_end = datetime.time(hour=23, minute=59, second=59)
     if not date:
         end_date = datetime.datetime.today()
         start_date = end_date - datetime.timedelta(weeks=12)
@@ -71,9 +72,9 @@ def filtered_by_date(transactions: List[Dict], date: str = "") -> List[Dict[str,
     for transaction in transactions:
         transaction_date = datetime.datetime.strptime(transaction["Дата операции"], "%d.%m.%Y %H:%M:%S")
         if (
-            datetime.datetime.combine(start_date, time)
+            datetime.datetime.combine(start_date, time_start)
             <= transaction_date
-            <= datetime.datetime.combine(end_date, time)
+            <= datetime.datetime.combine(end_date, time_end)
         ):
             filtered_list.append(transaction)
     logger.info("Функция успешно завершила свою работу.")
