@@ -1,6 +1,6 @@
 import json
 import logging
-
+import pandas as pd
 from config import VIEWS_LOGS
 from src.utils import (
     card_info,
@@ -20,7 +20,7 @@ file_handler.setFormatter(file_formatter)
 logger.addHandler(file_handler)
 
 
-def views(date: str, transactions_df) -> str:
+def views(date: pd.DataFrame, transactions_df: dict|list) -> str:
     """Функция принимает дату (строка) и DataFrame с данными по транзакциям.
     Возвращает ответ с приветствием, информацией по картам,
     топ-5 транзакций стоимость валюты и акций в виде json-строки."""
